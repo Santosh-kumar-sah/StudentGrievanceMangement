@@ -8,7 +8,7 @@ import {
 
 const colors = ["#06b6d4", "#6366f1", "#f43f5e", "#10b981", "#f59e0b", "#8b5cf6"];
 
-const ExpensePieChart = ({ chartData }) => {
+const GrievancePieChart = ({ chartData }) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
@@ -23,4 +23,4 @@ const ExpensePieChart = ({ chartData }) => {
   );
 };
 
-export default ExpensePieChart;
+export default GrievancePieChart;

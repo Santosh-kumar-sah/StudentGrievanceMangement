@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { loginUser } from "../services/api.js";
+import { loginStudent } from "../services/grievance.service.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const Login = () => {
@@ -17,8 +17,8 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const response = await loginUser(formData);
-      login(response.data.token, response.data.user?.name || "User");
+      const response = await loginStudent(formData);
+      login(response.data.token, response.data.student?.name || "Student");
       toast.success("Login successful");
       const redirectTo = location.state?.from?.pathname || "/dashboard";
       navigate(redirectTo, { replace: true });
@@ -36,9 +36,9 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md rounded-3xl border border-white/70 bg-white/70 p-7 shadow-xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/70"
       >
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white">Welcome Back</h1>
+        <h1 className="text-3xl font-black text-slate-900 dark:text-white">Student Login</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Sign in to continue managing your expenses.
+          Sign in to manage your grievances.
         </p>
 
         <form className="mt-6 space-y-3" onSubmit={handleSubmit}>

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Refactor: User schema replaced with Student schema.
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -22,6 +23,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
+const Student = mongoose.model("Student", userSchema);
 
-export default User;
+export default Student;

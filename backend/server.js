@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-import expenseRoutes from "./routes/expenseRoutes.js";
+import grievanceRoutes from "./routes/grievance.routes.js";
 
 dotenv.config();
 
@@ -15,11 +15,11 @@ connectDB();
 app.use(express.json());
 app.use(cors());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/expense", expenseRoutes);
+app.use("/api", authRoutes);
+app.use("/api/grievances", grievanceRoutes);
 
 app.get("/", (req, res) => {
-	res.status(200).json({ message: "Expense API is running" });
+	res.status(200).json({ message: "Student Grievance API is running" });
 });
 
 app.use((req, res) => {

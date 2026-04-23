@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { registerUser } from "../services/api.js";
+import { registerStudent } from "../services/grievance.service.js";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Register = () => {
 
     try {
       setLoading(true);
-      await registerUser(formData);
+      await registerStudent(formData);
       toast.success("Registration successful. Please login.");
       navigate("/login");
     } catch (err) {
@@ -35,9 +35,9 @@ const Register = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md rounded-3xl border border-white/70 bg-white/70 p-7 shadow-xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/70"
       >
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white">Create Account</h1>
+        <h1 className="text-3xl font-black text-slate-900 dark:text-white">Student Registration</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Start tracking your expenses in minutes.
+          Create your account to submit and track grievances.
         </p>
 
         <form className="mt-6 space-y-3" onSubmit={handleSubmit}>

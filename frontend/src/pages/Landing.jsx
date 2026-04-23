@@ -25,7 +25,7 @@ const Landing = () => {
           transition={{ duration: 0.6 }}
           className="mb-4 inline-flex items-center rounded-full border border-white/70 bg-white/60 px-4 py-2 text-sm font-semibold text-slate-700 backdrop-blur dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-200"
         >
-          Smart Personal Expense Management
+          Student Support Portal
         </motion.p>
 
         <motion.h1
@@ -34,7 +34,7 @@ const Landing = () => {
           transition={{ delay: 0.1, duration: 0.7 }}
           className="max-w-3xl text-4xl font-black leading-tight text-slate-900 dark:text-white md:text-6xl"
         >
-          Control every rupee with a clean, animated, real-time dashboard.
+          Raise, track, and resolve student grievances with confidence.
         </motion.h1>
 
         <motion.p
@@ -43,8 +43,8 @@ const Landing = () => {
           transition={{ delay: 0.2, duration: 0.7 }}
           className="mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300 md:text-lg"
         >
-          ExpenseFlow connects directly to your backend, lets you track spending by category,
-          and keeps your data secure with token-based authentication.
+          Student Grievance Management System helps students submit concerns, monitor status,
+          and stay updated through a secure dashboard.
         </motion.p>
 
         <motion.div
@@ -79,8 +79,8 @@ const Landing = () => {
 
         <motion.div animate={floating} className="mt-16 grid w-full max-w-4xl grid-cols-1 gap-4 md:grid-cols-3">
           {[
-            "Live Expense Tracking",
-            "Category Insights",
+            "Quick Grievance Submission",
+            "Category-based Tracking",
             "Secure JWT Auth"
           ].map((item) => (
             <div
@@ -89,7 +89,7 @@ const Landing = () => {
             >
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">{item}</h3>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                Built for speed, clarity, and day-to-day spending decisions.
+                Built for speed, clarity, and transparent grievance resolution.
               </p>
             </div>
           ))}
@@ -98,9 +98,9 @@ const Landing = () => {
 
       <section id="features" className="mx-auto max-w-6xl px-4 pb-20">
         <div className="rounded-3xl border border-white/70 bg-white/60 p-8 shadow-xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/60">
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Why ExpenseFlow</h2>
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Why This System</h2>
           <p className="mt-3 text-slate-600 dark:text-slate-300">
-            Seamless login flow, responsive dashboard, real API integration, and delightful motion.
+            Seamless login flow, responsive dashboard, real API integration, and clear status tracking.
           </p>
         </div>
       </section>

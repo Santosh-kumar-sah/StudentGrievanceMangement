@@ -2,110 +2,109 @@ import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import {
-  addExpense,
-  deleteExpense,
-  getExpenses,
-  updateExpense
-} from "../services/api.js";
+  createGrievance,
+  deleteGrievance,
+  getGrievances,
+  searchGrievancesByTitle,
+  updateGrievance
+} from "../services/grievance.service.js";
 import PageLoader from "../components/PageLoader.jsx";
 
-const categories = ["All", "Food", "Travel", "Bills", "Shopping", "Health", "Other"];
-const ExpensePieChart = lazy(() => import("../components/charts/ExpensePieChart.jsx"));
+const categories = ["Academic", "Hostel", "Transport", "Other"];
+const statuses = ["Pending", "Resolved"];
+const GrievancePieChart = lazy(() => import("../components/charts/GrievancePieChart.jsx"));
 
 const Dashboard = () => {
-  const [expenses, setExpenses] = useState([]);
+  const [grievances, setGrievances] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [editExpenseId, setEditExpenseId] = useState("");
+  const [editGrievanceId, setEditGrievanceId] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
-    amount: "",
-    category: "Food"
+    description: "",
+    category: "Academic",
+    status: "Pending"
   });
 
-  const fetchExpenses = async (category = "") => {
+  const fetchGrievances = async () => {
     try {
       setLoading(true);
-      const response = await getExpenses(category);
-      setExpenses(response.data);
+      const response = await getGrievances();
+      setGrievances(response.data);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Unable to fetch expenses");
+      toast.error(err.response?.data?.message || "Unable to fetch grievances");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const category = selectedCategory === "All" ? "" : selectedCategory;
-    fetchExpenses(category);
-  }, [selectedCategory]);
+    fetchGrievances();
+  }, []);
+
+  const handleSearch = async () => {
+    try {
+      const query = searchQuery.trim();
+
+      if (!query) {
+        fetchGrievances();
+        return;
+      }
+
+      setSearchLoading(true);
+      const response = await searchGrievancesByTitle(query);
+      setGrievances(response.data);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Unable to search grievances");
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const payload = {
-        ...formData,
-        amount: Number(formData.amount)
-      };
-
-      if (editExpenseId) {
-        await updateExpense(editExpenseId, payload);
-        toast.success("Expense updated");
+      if (editGrievanceId) {
+        await updateGrievance(editGrievanceId, formData);
+        toast.success("Grievance updated");
       } else {
-        await addExpense(payload);
-        toast.success("Expense added");
+        await createGrievance(formData);
+        toast.success("Grievance submitted");
       }
 
-      setEditExpenseId("");
-      setFormData({ title: "", amount: "", category: "Food" });
-
-      const category = selectedCategory === "All" ? "" : selectedCategory;
-      fetchExpenses(category);
+      setEditGrievanceId("");
+      setFormData({ title: "", description: "", category: "Academic", status: "Pending" });
+      fetchGrievances();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Unable to save expense");
+      toast.error(err.response?.data?.message || "Unable to save grievance");
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      await deleteExpense(id);
-      toast.success("Expense deleted");
-      const category = selectedCategory === "All" ? "" : selectedCategory;
-      fetchExpenses(category);
+      await deleteGrievance(id);
+      toast.success("Grievance deleted");
+      fetchGrievances();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Unable to delete expense");
+      toast.error(err.response?.data?.message || "Unable to delete grievance");
     }
   };
 
-  const visibleExpenses = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-
-    if (!query) {
-      return expenses;
-    }
-
-    return expenses.filter(
-      (expense) =>
-        expense.title.toLowerCase().includes(query) ||
-        expense.category.toLowerCase().includes(query)
-    );
-  }, [expenses, searchQuery]);
-
   const chartData = useMemo(() => {
-    const totals = visibleExpenses.reduce((acc, expense) => {
-      const key = expense.category;
-      acc[key] = (acc[key] || 0) + Number(expense.amount || 0);
+    const totals = grievances.reduce((acc, grievance) => {
+      const key = grievance.category;
+      acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
 
     return Object.entries(totals).map(([name, value]) => ({ name, value }));
-  }, [visibleExpenses]);
+  }, [grievances]);
 
-  const totalAmount = useMemo(
-    () => visibleExpenses.reduce((sum, expense) => sum + Number(expense.amount || 0), 0),
-    [visibleExpenses]
+  const resolvedCount = useMemo(
+    () => grievances.filter((grievance) => grievance.status === "Resolved").length,
+    [grievances]
   );
 
   return (
@@ -116,20 +115,20 @@ const Dashboard = () => {
         className="grid gap-4 md:grid-cols-3"
       >
         <article className="glass-card md:col-span-2">
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white">Expense Dashboard</h1>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white">Grievance Dashboard</h1>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-            Real-time expenses synced with your backend.
+            Track your submitted grievances and their resolution progress.
           </p>
         </article>
         <article className="glass-card">
-          <p className="text-sm text-slate-600 dark:text-slate-300">Total Spend</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">Resolved Grievances</p>
           <p className="mt-1 text-3xl font-black text-cyan-700 dark:text-cyan-300">
-            ${totalAmount.toFixed(2)}
+            {resolvedCount}
           </p>
         </article>
       </motion.section>
 
-      <section id="add-expense" className="mt-4 grid gap-4 lg:grid-cols-3">
+      <section id="add-grievance" className="mt-4 grid gap-4 lg:grid-cols-3">
         <motion.article
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -137,9 +136,9 @@ const Dashboard = () => {
           className="glass-card lg:col-span-2"
         >
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            {editExpenseId ? "Update Expense" : "Add Expense"}
+            {editGrievanceId ? "Update Grievance" : "Submit Grievance"}
           </h2>
-          <form className="mt-4 grid gap-3 md:grid-cols-3" onSubmit={handleSubmit}>
+          <form className="mt-4 grid gap-3 md:grid-cols-2" onSubmit={handleSubmit}>
             <input
               className="input"
               type="text"
@@ -148,40 +147,55 @@ const Dashboard = () => {
               onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
               required
             />
-            <input
-              className="input"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Amount"
-              value={formData.amount}
-              onChange={(e) => setFormData((prev) => ({ ...prev, amount: e.target.value }))}
-              required
-            />
             <select
               className="input"
               value={formData.category}
               onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
             >
-              {categories
-                .filter((item) => item !== "All")
-                .map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
+              {categories.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
             </select>
 
-            <button className="btn-primary md:col-span-2" type="submit">
-              {editExpenseId ? "Update Expense" : "Add Expense"}
+            <textarea
+              className="input md:col-span-2"
+              rows="4"
+              placeholder="Describe your grievance"
+              value={formData.description}
+              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+              required
+            />
+
+            <select
+              className="input"
+              value={formData.status}
+              onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value }))}
+            >
+              {statuses.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+
+            <button className="btn-primary" type="submit">
+              {editGrievanceId ? "Update Grievance" : "Submit Grievance"}
             </button>
-            {editExpenseId && (
+
+            {editGrievanceId && (
               <button
                 type="button"
                 className="btn-danger"
                 onClick={() => {
-                  setEditExpenseId("");
-                  setFormData({ title: "", amount: "", category: "Food" });
+                  setEditGrievanceId("");
+                  setFormData({
+                    title: "",
+                    description: "",
+                    category: "Academic",
+                    status: "Pending"
+                  });
                 }}
               >
                 Cancel Edit
@@ -196,10 +210,10 @@ const Dashboard = () => {
           transition={{ delay: 0.1 }}
           className="glass-card h-[290px]"
         >
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">Category Split</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">Grievance Category Split</h3>
           <div className="mt-2 h-[230px]">
             <Suspense fallback={<PageLoader label="Loading chart" compact />}>
-              <ExpensePieChart chartData={chartData} />
+              <GrievancePieChart chartData={chartData} />
             </Suspense>
           </div>
         </motion.article>
@@ -211,25 +225,17 @@ const Dashboard = () => {
         transition={{ delay: 0.15 }}
         className="mt-4 glass-card"
       >
-        <div className="mb-4 grid gap-3 md:grid-cols-3">
+        <div className="mb-4 grid gap-3 md:grid-cols-4">
           <input
-            className="input md:col-span-2"
+            className="input md:col-span-3"
             type="text"
-            placeholder="Search by title or category"
+            placeholder="Search grievances by title"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <select
-            className="input"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            {categories.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
+          <button type="button" className="btn-primary" onClick={handleSearch} disabled={searchLoading}>
+            {searchLoading ? "Searching..." : "Search"}
+          </button>
         </div>
 
         {loading ? (
@@ -238,35 +244,37 @@ const Dashboard = () => {
             <div className="h-14 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
             <div className="h-14 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
           </div>
-        ) : visibleExpenses.length === 0 ? (
-          <p className="text-sm text-slate-600 dark:text-slate-300">No expenses found.</p>
+        ) : grievances.length === 0 ? (
+          <p className="text-sm text-slate-600 dark:text-slate-300">No grievances found.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] border-separate border-spacing-y-2 text-left text-sm">
               <thead>
                 <tr className="text-slate-600 dark:text-slate-300">
                   <th>Title</th>
-                  <th>Amount</th>
+                  <th>Description</th>
                   <th>Category</th>
+                  <th>Status</th>
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {visibleExpenses.map((expense) => (
+                {grievances.map((grievance) => (
                   <tr
-                    key={expense._id}
+                    key={grievance._id}
                     className="rounded-xl bg-white/70 shadow-sm dark:bg-slate-900/70"
                   >
                     <td className="rounded-l-xl px-3 py-3 font-semibold text-slate-900 dark:text-white">
-                      {expense.title}
+                      {grievance.title}
                     </td>
                     <td className="px-3 py-3 text-slate-700 dark:text-slate-200">
-                      ${Number(expense.amount).toFixed(2)}
+                      {grievance.description}
                     </td>
-                    <td className="px-3 py-3 text-slate-700 dark:text-slate-200">{expense.category}</td>
+                    <td className="px-3 py-3 text-slate-700 dark:text-slate-200">{grievance.category}</td>
+                    <td className="px-3 py-3 text-slate-700 dark:text-slate-200">{grievance.status}</td>
                     <td className="px-3 py-3 text-slate-700 dark:text-slate-200">
-                      {new Date(expense.date).toLocaleDateString()}
+                      {new Date(grievance.date).toLocaleDateString()}
                     </td>
                     <td className="rounded-r-xl px-3 py-3">
                       <div className="flex flex-wrap gap-2">
@@ -274,13 +282,14 @@ const Dashboard = () => {
                           type="button"
                           className="rounded-full bg-cyan-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-cyan-600"
                           onClick={() => {
-                            setEditExpenseId(expense._id);
+                            setEditGrievanceId(grievance._id);
                             setFormData({
-                              title: expense.title,
-                              amount: expense.amount,
-                              category: expense.category
+                              title: grievance.title,
+                              description: grievance.description,
+                              category: grievance.category,
+                              status: grievance.status
                             });
-                            document.getElementById("add-expense")?.scrollIntoView({
+                            document.getElementById("add-grievance")?.scrollIntoView({
                               behavior: "smooth"
                             });
                           }}
@@ -290,7 +299,7 @@ const Dashboard = () => {
                         <button
                           type="button"
                           className="rounded-full bg-rose-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-600"
-                          onClick={() => handleDelete(expense._id)}
+                          onClick={() => handleDelete(grievance._id)}
                         >
                           Delete
                         </button>

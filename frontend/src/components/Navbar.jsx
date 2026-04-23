@@ -24,7 +24,7 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
     <header className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/70">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link to="/" className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-          ExpenseFlow
+          Student Grievance Management System
         </Link>
 
         <div className="hidden items-center gap-2 md:flex">
@@ -48,8 +48,8 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
               >
                 Dashboard
               </Link>
-              <Link to="/dashboard#add-expense" className={linkClass}>
-                Add Expense
+              <Link to="/dashboard#add-grievance" className={linkClass}>
+                Add Grievance
               </Link>
               <button
                 type="button"
@@ -101,8 +101,8 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
                 <Link to="/dashboard" className={linkClass} onClick={() => setOpen(false)}>
                   Dashboard
                 </Link>
-                <Link to="/dashboard#add-expense" className={linkClass} onClick={() => setOpen(false)}>
-                  Add Expense
+                <Link to="/dashboard#add-grievance" className={linkClass} onClick={() => setOpen(false)}>
+                  Add Grievance
                 </Link>
                 <button
                   type="button"

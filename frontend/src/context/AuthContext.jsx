@@ -4,7 +4,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
-  const [userName, setUserName] = useState(localStorage.getItem("userName") || "");
+  const [studentName, setStudentName] = useState(localStorage.getItem("studentName") || "");
 
   useEffect(() => {
     if (token) {
@@ -15,32 +15,32 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   useEffect(() => {
-    if (userName) {
-      localStorage.setItem("userName", userName);
+    if (studentName) {
+      localStorage.setItem("studentName", studentName);
     } else {
-      localStorage.removeItem("userName");
+      localStorage.removeItem("studentName");
     }
-  }, [userName]);
+  }, [studentName]);
 
-  const login = (nextToken, nextUserName) => {
+  const login = (nextToken, nextStudentName) => {
     setToken(nextToken);
-    setUserName(nextUserName || "");
+    setStudentName(nextStudentName || "");
   };
 
   const logout = () => {
     setToken("");
-    setUserName("");
+    setStudentName("");
   };
 
   const value = useMemo(
     () => ({
       token,
-      userName,
+      studentName,
       isAuthenticated: Boolean(token),
       login,
       logout
     }),
-    [token, userName]
+    [token, studentName]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
