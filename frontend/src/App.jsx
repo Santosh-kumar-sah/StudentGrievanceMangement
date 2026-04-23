@@ -7,12 +7,15 @@ import Register from "./pages/Register.jsx";
 import Login from "./pages/Login.jsx";
 import Navbar from "./components/Navbar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Footer from "./components/Footer.jsx";
 import PageLoader from "./components/PageLoader.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
 
 const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
 
 const App = () => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
 
   useEffect(() => {
@@ -25,26 +28,29 @@ const App = () => {
   }, [darkMode]);
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
+    <div className="flex min-h-screen flex-col bg-slate-100 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
       <Navbar darkMode={darkMode} onToggleDarkMode={() => setDarkMode((prev) => !prev)} />
-      <AnimatePresence mode="wait">
-        <Suspense fallback={<PageLoader label="Loading page" />}>
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Landing />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </AnimatePresence>
+      <div className="flex-1">
+        <AnimatePresence mode="wait">
+          <Suspense fallback={<PageLoader label="Loading page" />}>
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<Landing />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </AnimatePresence>
+      </div>
+      <Footer darkMode={darkMode} onToggleDarkMode={() => setDarkMode((prev) => !prev)} />
       <Toaster
         position="top-right"
         toastOptions={{

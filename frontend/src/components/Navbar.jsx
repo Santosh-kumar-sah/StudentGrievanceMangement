@@ -1,62 +1,61 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext.jsx";
 
-const linkClass =
-  "rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-white/80 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800";
+const baseLinkClass =
+  "rounded-full px-4 py-2 text-sm font-medium transition hover:bg-slate-900 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-950";
 
 const Navbar = ({ darkMode, onToggleDarkMode }) => {
   const [open, setOpen] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, studentName } = useAuth();
 
   const handleLogout = () => {
     logout();
     setOpen(false);
-    navigate("/");
+    navigate("/login");
   };
 
-  const isActive = (path) => location.pathname === path;
+  const navClass = ({ isActive }) =>
+    `${baseLinkClass} ${isActive ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950" : "text-slate-700 dark:text-slate-200"}`;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/70">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link to="/" className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-          Student Grievance Management System
-        </Link>
+    <header className="sticky top-0 z-50 border-b border-white/60 bg-white/80 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+        <div className="flex items-center gap-3">
+          <Link to="/" className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+            SGMS
+          </Link>
+          <span className="hidden rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 sm:inline-flex">
+            Student Grievance Management System
+          </span>
+        </div>
 
         <div className="hidden items-center gap-2 md:flex">
+          <NavLink to="/" className={navClass}>
+            Home
+          </NavLink>
           {!isAuthenticated ? (
             <>
-              <Link to="/login" className={`${linkClass} ${isActive("/login") ? "bg-white dark:bg-slate-800" : ""}`}>
+              <NavLink to="/login" className={navClass}>
                 Login
-              </Link>
-              <Link
-                to="/register"
-                className={`${linkClass} ${isActive("/register") ? "bg-white dark:bg-slate-800" : ""}`}
-              >
+              </NavLink>
+              <NavLink to="/register" className={navClass}>
                 Register
-              </Link>
+              </NavLink>
             </>
           ) : (
             <>
-              <Link
-                to="/dashboard"
-                className={`${linkClass} ${isActive("/dashboard") ? "bg-white dark:bg-slate-800" : ""}`}
-              >
+              <NavLink to="/dashboard" className={navClass}>
                 Dashboard
-              </Link>
-              <Link to="/dashboard#add-grievance" className={linkClass}>
-                Add Grievance
-              </Link>
+              </NavLink>
               <button
                 type="button"
                 onClick={handleLogout}
                 className="rounded-full bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600"
               >
-                Logout
+                Logout{studentName ? `, ${studentName.split(" ")[0]}` : ""}
               </button>
             </>
           )}
@@ -64,16 +63,16 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
           <button
             type="button"
             onClick={onToggleDarkMode}
-            className="rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="ml-1 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-cyan-400 hover:bg-cyan-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
           >
-            {darkMode ? "Light" : "Dark"}
+            {darkMode ? "Light Mode" : "Dark Mode"}
           </button>
         </div>
 
         <button
           type="button"
           onClick={() => setOpen((prev) => !prev)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200 md:hidden"
+          className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900 md:hidden"
         >
           Menu
         </button>
@@ -83,42 +82,42 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          className="mx-4 mb-3 rounded-2xl border border-white/50 bg-white/90 p-3 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+          className="mx-4 mb-3 rounded-2xl border border-white/60 bg-white/95 p-3 shadow-xl dark:border-slate-800 dark:bg-slate-900"
         >
           <div className="flex flex-col gap-2">
+            <NavLink to="/" className={navClass} onClick={() => setOpen(false)}>
+              Home
+            </NavLink>
             {!isAuthenticated ? (
               <>
-                <Link to="/login" className={linkClass} onClick={() => setOpen(false)}>
+                <NavLink to="/login" className={navClass} onClick={() => setOpen(false)}>
                   Login
-                </Link>
-                <Link to="/register" className={linkClass} onClick={() => setOpen(false)}>
+                </NavLink>
+                <NavLink to="/register" className={navClass} onClick={() => setOpen(false)}>
                   Register
-                </Link>
+                </NavLink>
               </>
             ) : (
               <>
-                <Link to="/dashboard" className={linkClass} onClick={() => setOpen(false)}>
+                <NavLink to="/dashboard" className={navClass} onClick={() => setOpen(false)}>
                   Dashboard
-                </Link>
-                <Link to="/dashboard#add-grievance" className={linkClass} onClick={() => setOpen(false)}>
-                  Add Grievance
-                </Link>
+                </NavLink>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="rounded-full bg-rose-500 px-4 py-2 text-sm font-semibold text-white"
+                  className="rounded-full bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-600"
                 >
                   Logout
                 </button>
               </>
             )}
+
             <button
               type="button"
               onClick={onToggleDarkMode}
-              className="rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200"
+              className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-cyan-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
             >
-              {darkMode ? "Switch to Light" : "Switch to Dark"}
+              {darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             </button>
           </div>
         </motion.div>

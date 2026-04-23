@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import ParticleBackground from "../components/ParticleBackground.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const floating = {
   y: [0, -10, 0],
@@ -8,6 +9,8 @@ const floating = {
 };
 
 const Landing = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <main className="relative overflow-hidden">
       <ParticleBackground />
@@ -23,7 +26,7 @@ const Landing = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-4 inline-flex items-center rounded-full border border-white/70 bg-white/60 px-4 py-2 text-sm font-semibold text-slate-700 backdrop-blur dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-200"
+          className="mb-4 inline-flex items-center rounded-full border border-white/70 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-200"
         >
           Student Support Portal
         </motion.p>
@@ -41,7 +44,7 @@ const Landing = () => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.7 }}
-          className="mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300 md:text-lg"
+          className="mt-5 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300 md:text-lg"
         >
           Student Grievance Management System helps students submit concerns, monitor status,
           and stay updated through a secure dashboard.
@@ -55,18 +58,18 @@ const Landing = () => {
         >
           <motion.div whileHover={{ y: -2, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Link
-            to="/login"
-            className="rounded-full bg-slate-900 px-7 py-3 text-sm font-semibold text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-slate-700 dark:bg-white dark:text-slate-900"
+              to={isAuthenticated ? "/dashboard" : "/register"}
+              className="rounded-full bg-slate-900 px-7 py-3 text-sm font-semibold text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-slate-700 dark:bg-white dark:text-slate-900"
             >
-              Login
+              {isAuthenticated ? "Go to Dashboard" : "Get Started"}
             </Link>
           </motion.div>
           <motion.div whileHover={{ y: -2, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Link
-            to="/register"
-            className="rounded-full border border-slate-300 bg-white/80 px-7 py-3 text-sm font-semibold text-slate-800 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white dark:border-slate-700 dark:bg-slate-900/80 dark:text-white"
+              to={isAuthenticated ? "/dashboard" : "/login"}
+              className="rounded-full border border-slate-300 bg-white/80 px-7 py-3 text-sm font-semibold text-slate-800 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white dark:border-slate-700 dark:bg-slate-900/80 dark:text-white"
             >
-              Register
+              {isAuthenticated ? "View Dashboard" : "Login"}
             </Link>
           </motion.div>
           <a
@@ -77,15 +80,16 @@ const Landing = () => {
           </a>
         </motion.div>
 
-        <motion.div animate={floating} className="mt-16 grid w-full max-w-4xl grid-cols-1 gap-4 md:grid-cols-3">
+        <motion.div animate={floating} className="mt-16 grid w-full max-w-4xl grid-cols-1 gap-4 md:grid-cols-4">
           {[
-            "Quick Grievance Submission",
-            "Category-based Tracking",
-            "Secure JWT Auth"
+            "Submit Grievance",
+            "Track Status",
+            "Secure Login",
+            "Manage Complaints"
           ].map((item) => (
             <div
               key={item}
-              className="rounded-2xl border border-white/70 bg-white/65 p-5 text-left shadow-lg backdrop-blur dark:border-slate-800 dark:bg-slate-900/60"
+              className="rounded-2xl border border-white/70 bg-white/80 p-5 text-left shadow-lg transition hover:-translate-y-1 hover:shadow-xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/60"
             >
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">{item}</h3>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
@@ -96,12 +100,61 @@ const Landing = () => {
         </motion.div>
       </section>
 
-      <section id="features" className="mx-auto max-w-6xl px-4 pb-20">
-        <div className="rounded-3xl border border-white/70 bg-white/60 p-8 shadow-xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/60">
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Why This System</h2>
-          <p className="mt-3 text-slate-600 dark:text-slate-300">
-            Seamless login flow, responsive dashboard, real API integration, and clear status tracking.
+      <section id="features" className="mx-auto max-w-6xl px-4 pb-16">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            {
+              title: "Submit Grievance",
+              text: "Raise a new grievance quickly with a simple form and clear categories."
+            },
+            {
+              title: "Track Status",
+              text: "Follow every request with status badges and a clean list view."
+            },
+            {
+              title: "Secure Login",
+              text: "Use authenticated access with JWT-based session handling."
+            },
+            {
+              title: "Manage Complaints",
+              text: "Edit or remove entries without losing the overall workflow."
+            }
+          ].map((feature) => (
+            <div
+              key={feature.title}
+              className="rounded-3xl border border-white/70 bg-white/70 p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900/60"
+            >
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{feature.title}</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{feature.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-16">
+        <div className="rounded-3xl border border-white/70 bg-white/70 p-8 shadow-xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/60">
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">About</h2>
+          <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-300">
+            This system gives students a clear and secure way to submit grievances, monitor review
+            progress, and keep communication organized in one place.
           </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-20">
+        <div className="flex flex-col items-center justify-between gap-4 rounded-3xl bg-slate-900 px-8 py-8 text-center shadow-xl dark:bg-white dark:text-slate-900 md:flex-row md:text-left">
+          <div>
+            <h2 className="text-2xl font-extrabold">Ready to manage grievances better?</h2>
+            <p className="mt-2 text-sm text-slate-200 dark:text-slate-700">
+              Jump into your dashboard or create an account and get started in minutes.
+            </p>
+          </div>
+          <Link
+            to={isAuthenticated ? "/dashboard" : "/login"}
+            className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:scale-[1.02] dark:bg-slate-900 dark:text-white"
+          >
+            {isAuthenticated ? "Go to Dashboard" : "Login to Continue"}
+          </Link>
         </div>
       </section>
     </main>
