@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../context/AuthContext.jsx";
+import api from "../services/grievance.service.js";
 
 const Chatbot = () => {
+  const { token } = useAuth();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const containerRef = useRef(null);
-
-  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   useEffect(() => {
     if (open && containerRef.current) {
@@ -24,17 +25,16 @@ const Chatbot = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text })
-      });
-
-      const data = await res.json();
-      const reply = data.reply || data?.raw || "No reply";
+      const { data } = await api.post(
+        "/chat",
+        { message: text },
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+      );
+      const reply = data.reply || "No reply";
       setMessages((m) => [...m, { role: "assistant", text: typeof reply === "string" ? reply : JSON.stringify(reply), id: Date.now() + 1 }]);
     } catch (err) {
-      setMessages((m) => [...m, { role: "assistant", text: "Error: unable to reach chat server", id: Date.now() + 2 }]);
+      const errorMessage = err?.response?.data?.reply || err?.response?.data?.message || "Error: unable to reach chat server";
+      setMessages((m) => [...m, { role: "assistant", text: errorMessage, id: Date.now() + 2 }]);
     } finally {
       setLoading(false);
     }
