@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import Grievance from "../models/grievance.model.js";
 
 const CATEGORY_KEYWORDS = [
@@ -6,24 +5,6 @@ const CATEGORY_KEYWORDS = [
   { category: "Hostel", keywords: ["hostel", "room", "mess", "water", "electricity", "cleaning", "warden", "bathroom"] },
   { category: "Transport", keywords: ["bus", "transport", "route", "pickup", "drop", "driver", "shuttle"] }
 ];
-
-function getStudentId(req) {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return null;
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  try {
-    if (!process.env.JWT_SECRET) return null;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    return decoded.id || null;
-  } catch {
-    return null;
-  }
-}
 
 function extractJson(text) {
   if (!text) return null;
@@ -117,19 +98,12 @@ export async function chat(req, res) {
     const { message } = req.body;
     if (!message) return res.status(400).json({ message: "Message is required" });
 
-    const studentId = getStudentId(req);
+    const studentId = req.student?.id;
 
     const { data, content } = await callChatApi(message);
     const parsed = extractJson(content);
 
     if (parsed?.intent === "create_grievance") {
-      if (!studentId) {
-        return res.status(401).json({
-          reply: "Please log in first so I can save the grievance to your account.",
-          raw: data
-        });
-      }
-
       const grievancePayload = {
         title: (parsed.title || "").trim(),
         description: (parsed.description || "").trim(),
@@ -148,6 +122,13 @@ export async function chat(req, res) {
       if (!finalPayload.title || !finalPayload.description || !finalPayload.category) {
         return res.status(400).json({
           reply: "I could not understand the grievance details clearly. Please include the issue, title, and category.",
+          raw: data
+        });
+      }
+
+      if (!studentId) {
+        return res.status(401).json({
+          reply: "Please log in first so I can save the grievance to your account.",
           raw: data
         });
       }
