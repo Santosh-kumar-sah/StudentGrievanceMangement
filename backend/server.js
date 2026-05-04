@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import grievanceRoutes from "./routes/grievance.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(cors());
 
 app.use("/api", authRoutes);
 app.use("/api/grievances", grievanceRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.get("/", (req, res) => {
 	res.status(200).json({ message: "Student Grievance API is running" });

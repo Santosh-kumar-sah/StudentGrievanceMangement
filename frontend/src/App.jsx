@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Footer from "./components/Footer.jsx";
 import PageLoader from "./components/PageLoader.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
+import Chatbot from "./components/chatbot.jsx";
 
 const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
 
@@ -51,6 +52,7 @@ const App = () => {
         </AnimatePresence>
       </div>
       <Footer darkMode={darkMode} onToggleDarkMode={() => setDarkMode((prev) => !prev)} />
+      <Chatbot />
       <Toaster
         position="top-right"
         toastOptions={{
