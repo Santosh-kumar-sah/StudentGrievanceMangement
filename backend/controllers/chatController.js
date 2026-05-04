@@ -94,6 +94,29 @@ async function callChatApi(message) {
   return { data, content };
 }
 
+function buildChatFallback(message) {
+  const lower = message.toLowerCase();
+
+  if (
+    lower.includes("grievance") ||
+    lower.includes("complaint") ||
+    lower.includes("add one") ||
+    lower.includes("create") ||
+    lower.includes("submit") ||
+    lower.includes("file")
+  ) {
+    return {
+      intent: "create_grievance",
+      ...buildFallbackGrievance(message)
+    };
+  }
+
+  return {
+    intent: "chat",
+    reply: "I can help you create a grievance. Try: add one grievance hostel food"
+  };
+}
+
 // POST /api/chat
 export async function chat(req, res) {
   try {
@@ -102,8 +125,19 @@ export async function chat(req, res) {
 
     const studentId = req.student?.id;
 
-    const { data, content } = await callChatApi(message);
-    const parsed = extractJson(content);
+    let data = null;
+    let content = null;
+    let parsed = null;
+
+    try {
+      const apiResult = await callChatApi(message);
+      data = apiResult.data;
+      content = apiResult.content;
+      parsed = extractJson(content);
+    } catch (apiError) {
+      console.warn("Chat API fallback used:", apiError.message);
+      parsed = buildChatFallback(message);
+    }
 
     if (parsed?.intent === "create_grievance") {
       const grievancePayload = {
