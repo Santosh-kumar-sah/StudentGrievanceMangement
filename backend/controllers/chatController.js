@@ -65,7 +65,7 @@ async function callChatApi(message) {
   ].join(" ");
 
   const payload = {
-    model: process.env.CHATBOT_MODEL || "gpt-4o-mini",
+    model: process.env.CHATBOT_MODEL || "openai/gpt-4o-mini",
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: message }
@@ -77,7 +77,9 @@ async function callChatApi(message) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": process.env.CHATBOT_APP_URL || "http://localhost:5173",
+      "X-Title": process.env.CHATBOT_APP_NAME || "Expense Grievance Chatbot"
     },
     body: JSON.stringify(payload)
   });
